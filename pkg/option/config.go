@@ -729,6 +729,18 @@ const (
 
 	// EnableRemoteNodeIdentity enables use of the remote-node identity
 	EnableRemoteNodeIdentity = "enable-remote-node-identity"
+
+	// HubbleListenAddresses specifies addresses for Hubble server to listen to.
+	HubbleListenAddresses = "hubble-listen-addresses"
+
+	// HubbleFlowBufferSize specifies the maximum number of flows in Hubble's buffer.
+	HubbleFlowBufferSize = "hubble-flow-buffer-size"
+
+	// HubbleMetricsServer specifies the addresses to serve Hubble metrics on.
+	HubbleMetricsServer = "hubble-metrics-server"
+
+	// HubbleMetrics specifies enabled metrics and their configuration options.
+	HubbleMetrics = "hubble-metrics"
 )
 
 // Default string arguments
@@ -1489,6 +1501,18 @@ type DaemonConfig struct {
 
 	// UpdateEC2AdapterLimitViaAPI configures the operator to use the EC2 API to fill out the instnacetype to adapter limit mapping
 	UpdateEC2AdapterLimitViaAPI bool
+
+	// HubbleListenAddresses specifies addresses for Hubble to listen to.
+	HubbleListenAddresses []string
+
+	// HubbleFlowBufferSize specifies the maximum number of flows in Hubble's buffer.
+	HubbleFlowBufferSize int
+
+	// HubbleMetricsServer specifies the addresses to serve Hubble metrics on.
+	HubbleMetricsServer string
+
+	// HubbleMetrics specifies enabled metrics and their configuration options.
+	HubbleMetrics []string
 }
 
 var (
@@ -2103,6 +2127,12 @@ func (c *DaemonConfig) Populate() {
 			c.DisableCiliumEndpointCRD = false
 		}
 	}
+
+	// Hubble options.
+	c.HubbleListenAddresses = viper.GetStringSlice(HubbleListenAddresses)
+	c.HubbleFlowBufferSize = viper.GetInt(HubbleFlowBufferSize)
+	c.HubbleMetricsServer = viper.GetString(HubbleMetricsServer)
+	c.HubbleMetrics = viper.GetStringSlice(HubbleMetrics)
 
 	// Hidden options
 	c.ConfigFile = viper.GetString(ConfigFile)
