@@ -361,6 +361,10 @@ Deprecated cilium-operator options
   endpoint GC can be done with ``cilium-endpoint-gc-interval=0``.
   This old option will be removed in Cilium 1.9
 
+* ``eni-parallel-workers``: This option in the Operator has been renamed to
+  ``parallel-alloc-workers``. The obsolete option name ``eni-parallel-workers``
+  has been deprecated and will be removed in v1.9.
+
 Removed options
 ~~~~~~~~~~~~~~~
 
