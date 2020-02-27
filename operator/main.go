@@ -142,7 +142,8 @@ func runOperator(cmd *cobra.Command) {
 		enableUnmanagedKubeDNSController()
 	}
 
-	if option.Config.IPAM == option.IPAMENI {
+	switch option.Config.IPAM {
+	case option.IPAMENI:
 		if err := eni.UpdateLimitsFromUserDefinedMappings(option.Config.AwsInstanceLimitMapping); err != nil {
 			log.WithError(err).Fatal("Parse aws-instance-limit-mapping failed")
 		}
@@ -156,6 +157,13 @@ func runOperator(cmd *cobra.Command) {
 			option.Config.IPAMAPIBurst,
 			option.Config.ENITags); err != nil {
 			log.WithError(err).Fatal("Unable to start ENI allocator")
+		}
+
+		startSynchronizingCiliumNodes()
+
+	case option.IPAMAzure:
+		if err := startAzureAllocator(option.Config.IPAMAPIQPSLimit, option.Config.IPAMAPIBurst); err != nil {
+			log.WithError(err).Fatal("Unable to start Azure allocator")
 		}
 
 		startSynchronizingCiliumNodes()
