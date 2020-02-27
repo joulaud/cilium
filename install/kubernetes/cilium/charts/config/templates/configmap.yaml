@@ -315,3 +315,16 @@ data:
   enable-well-known-identities: "false"
 {{- end }}
   enable-remote-node-identity: {{ .Values.global.remoteNodeIdentity | quote }}
+
+{{- if index .Values.global.hubble.listenAddresses 0 }}
+  hubble-listen-addresses: {{ .Values.global.hubble.listenAddresses | join " " | quote }}
+  hubble-default-socket-path: {{ .Values.global.hubble.listenAddresses | first | quote }}
+{{- if .Values.global.hubble.flowBufferSize }}
+  hubble-flow-buffer-size: {{ .Values.global.hubble.metricsServer }}
+{{- end }}
+{{- if and .Values.global.hubble.metricsServer .Values.global.hubble.metrics }}
+  hubble-metrics-server: {{ .Values.global.hubble.metricsServer | quote }}
+  hubble-metrics: {{ .Values.global.hubble.metrics | join " " | quote }}
+  {{- end }}
+{{- end }}
+
