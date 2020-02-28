@@ -48,6 +48,7 @@ if [[ ! $(helm version | grep ${HELM_VERSION}) ]]; then
   tar xzvf helm-v${HELM_VERSION}-linux-amd64.tar.gz
   mv linux-amd64/helm /usr/local/bin/
 fi
+su - vagrant -c 'helm init --client-only'
 
 # Install serial ttyS0 server
 cat <<EOF > /etc/systemd/system/serial-getty@ttyS0.service

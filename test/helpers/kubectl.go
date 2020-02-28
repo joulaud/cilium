@@ -1561,22 +1561,36 @@ func (kub *Kubectl) CiliumInstall(filename string, options map[string]string) er
 	return nil
 }
 
+// ApplyHelm runs the helm command with the given options.
+func (kub *Kubectl) ApplyHelm(repo, helmName, version, namespace string, options map[string]string) (*CmdRes, error) {
+	dir, _ := filepath.Split(repo)
+	kub.RunHelm("fetch", repo, "", version, "", map[string]string{}, fmt.Sprintf("--untar --untardir=%s", dir))
+	return kub.RunHelm("template", repo, helmName, "", namespace, options, fmt.Sprintf("| kubectl --namespace=%s apply -f -", namespace))
+}
+
 // RunHelm runs the helm command with the given options.
-func (kub *Kubectl) RunHelm(action, repo, helmName, version, namespace string, options map[string]string) (*CmdRes, error) {
+func (kub *Kubectl) RunHelm(action, repo, helmName, version, namespace string, options map[string]string, pipe string) (*CmdRes, error) {
 	err := kub.overwriteHelmOptions(options)
 	if err != nil {
 		return nil, err
 	}
 	optionsString := ""
 
+	if helmName != "" {
+		optionsString += fmt.Sprintf(" --name=%s ", helmName)
+	}
+	if version != "" {
+		optionsString += fmt.Sprintf(" --version=%s ", version)
+	}
+	if namespace != "" {
+		optionsString += fmt.Sprintf(" --namespace=%s ", namespace)
+	}
 	for k, v := range options {
 		optionsString += fmt.Sprintf(" --set %s=%s ", k, v)
 	}
-
-	return kub.ExecMiddle(fmt.Sprintf("helm %s %s %s "+
-		"--version=%s "+
-		"--namespace=%s "+
-		"%s", action, helmName, repo, version, namespace, optionsString)), nil
+	cmdStr := fmt.Sprintf("helm %s %s %s %s", action, repo, optionsString, pipe)
+	kub.Executor.Logger().Warningf("Executing command: %s", cmdStr)
+	return kub.ExecMiddle(fmt.Sprintf("helm %s %s %s %s", action, repo, optionsString, pipe)), nil
 }
 
 // CiliumUninstall uninstalls Cilium with the provided Helm options.
